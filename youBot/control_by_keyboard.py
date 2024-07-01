@@ -27,16 +27,20 @@ class YouBot:
         self.control = Control()
 
     def on_press(self, key):
-        delta = 0.5
+        delta = 1.0
         if key == Key.up:
             self.control.vel_X += delta
+            self.control.vel_Z = 0
         if key == Key.down:
             self.control.vel_X -= delta
+            self.control.vel_Z = 0
         if key == Key.left:
+            self.control.vel_X = 0
             self.control.vel_Z += delta
         if key == Key.right:
+            self.control.vel_X = 0
             self.control.vel_Z -= delta
-        self.control.vel_X = min(max(self.control.vel_X, -5), 5)
+        self.control.vel_X = min(max(self.control.vel_X, -10), 10)
         self.control.vel_Y = min(max(self.control.vel_Y, -5), 5)
         self.control.vel_Z = min(max(self.control.vel_Z, -np.pi), np.pi)
 
@@ -165,4 +169,4 @@ class YouBot:
 if __name__ == "__main__":
     client = YouBot()
     client.init_coppelia()
-    client.run_coppelia(100)
+    client.run_coppelia(3600)
