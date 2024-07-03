@@ -1,32 +1,37 @@
-import numpy as np
+# Copyright 2024 @with-RL
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+from dataclasses import dataclass
 from pynput.keyboard import Key, Listener
 
 from coppeliasim_zmqremoteapi_client import RemoteAPIClient
 
 
-class Denduleum1D:
+@dataclass
+class Control:
+    force_1: float = 0
+
+
+class Penduleum1D:
     def __init__(self):
         self.client = RemoteAPIClient()
         self.sim = self.client.require("sim")
-        self.config = np.zeros(1)
+        self.control = Control()
 
     def on_press(self, key):
         if key == Key.left:
-            self.config -= 1
+            self.control.force_1 -= 1
         if key == Key.right:
-            self.config += 1
-        self.config = np.clip(self.config, -10, 10)
-        print(self.config)
+            self.control.force_1 += 1
+        self.control.force_1 = min(max(self.control.force_1, -10), 10)
 
     def init_coppelia(self):
         self.joint_01 = self.sim.getObject("/Joint_01")
 
-        # force control mode
-        self.sim.setObjectInt32Param(
-            self.joint_01,
-            self.sim.jointintparam_dynctrlmode,
-            self.sim.jointdynctrl_force,
-        )
+    def control_joint(self):
+        self.sim.setJointTargetForce(self.joint_01, self.control.force_1)
 
     def run_coppelia(self, sec):
         # key input
@@ -35,13 +40,14 @@ class Denduleum1D:
         self.sim.setStepping(True)
         self.sim.startSimulation()
         while (t := self.sim.getSimulationTime()) < sec:
-            # force control
-            self.sim.setJointTargetForce(self.joint_01, self.config[0])
+            # control joint
+            self.control_joint()
+            # step
             self.sim.step()
         self.sim.stopSimulation()
 
 
 if __name__ == "__main__":
-    client = Denduleum1D()
+    client = Penduleum1D()
     client.init_coppelia()
     client.run_coppelia(100)
