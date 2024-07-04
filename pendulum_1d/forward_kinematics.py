@@ -14,10 +14,10 @@ from coppeliasim_zmqremoteapi_client import RemoteAPIClient
 
 @dataclass
 class Control:
-    O_0: tuple = (0, 1)
-    theta_1: float = -np.pi / 2
-    C_1: tuple = (0.5, 0, 1)
-    C_0: tuple = (0, 0, 1)  # 계산이 필요한 값
+    O_0: tuple = (0, 1)  # 중심 점
+    l_1: float = 0.5
+    theta_1: float = -np.pi / 2  # 각도: theta_1
+    C_0: tuple = (0, 0)  # 좌표: 계산이 필요한 값
 
 
 class Penduleum1D:
@@ -25,22 +25,22 @@ class Penduleum1D:
         self.client = RemoteAPIClient()
         self.sim = self.client.require("sim")
         self.control = Control()
-        self.fk()
+        self.control.C_0 = self.fk(self.control.theta_1, self.control.l_1)
 
-    def fk(self):
+    def fk(self, theta_1, l_1):
         H_01 = np.array(
             [
-                [np.cos(self.control.theta_1), -np.sin(self.control.theta_1), 0],
-                [np.sin(self.control.theta_1), np.cos(self.control.theta_1), 1],
+                [np.cos(theta_1), -np.sin(theta_1), self.control.O_0[0]],
+                [np.sin(theta_1), np.cos(theta_1), self.control.O_0[1]],
                 [0, 0, 1],
             ]
         )
-        self.control.C_0 = np.matmul(H_01, self.control.C_1)
+        return np.matmul(H_01, np.array([l_1, 0, 1]).T)[:-1]
 
     def on_press(self, key):
         if key == Key.space:
             self.control.theta_1 = (np.random.random() * 2 - 1) * np.pi
-            self.fk()
+            self.control.C_0 = self.fk(self.control.theta_1, self.control.l_1)
 
     def init_coppelia(self):
         self.joint_01 = self.sim.getObject("/Joint_01")
@@ -63,7 +63,7 @@ class Penduleum1D:
             self.control_joint()
             # dummy postion
             real = self.read_dummy()
-            print(f"real={real[1:]}, fk={self.control.C_0[:-1]}")
+            print(f"real={real[1:]}, fk={self.control.C_0}")
             # step
             self.sim.step()
         self.sim.stopSimulation()
