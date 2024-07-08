@@ -3,7 +3,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
-# Note: For kinematics testing, dynamic of Link_01 must be set to false.
+# Note: For kinematics testing
+#     - modes of Joint_01 must be set to Kinematic mode.
+#     - dynamic of Link_01 must be set to false.
 
 from dataclasses import dataclass
 import numpy as np
@@ -50,7 +52,7 @@ class Penduleum1D:
         return self.sim.getObjectPosition(self.dummy)
 
     def control_joint(self):
-        self.sim.setJointPosition(self.joint_01, self.control.theta_1)
+        self.sim.setJointTargetPosition(self.joint_01, self.control.theta_1)
 
     def run_coppelia(self, sec):
         # key input
