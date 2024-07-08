@@ -60,7 +60,7 @@ class Penduleum1D:
         dq = J_1inv.dot(dX)
         dq %= 2 * np.pi
 
-        return (theta_1 + dq,)
+        return (theta_1 + dq / 2,)
 
     def on_press(self, key):
         if key == Key.space:
