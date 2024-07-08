@@ -19,7 +19,7 @@ from coppeliasim_zmqremoteapi_client import RemoteAPIClient
 class Control:
     O_0: tuple = (0, 1)  # 중심 점
     l_1: float = 0.5
-    theta_1: float = -np.pi / 2  # 각도: theta_1 (계산이 필요한 값)
+    theta_1: float = -np.pi / 3  # 각도: theta_1 (계산이 필요한 값)
     C_0: tuple = (0, 0.5)  # 좌표
 
 
