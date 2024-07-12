@@ -2,10 +2,6 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 #     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Note: For kinematics testing
-#     - modes of Joint_01 must be set to Kinematic mode.
-#     - dynamic of Link_01 must be set to false.
 
 from dataclasses import dataclass
 import numpy as np
@@ -79,6 +75,11 @@ class Penduleum1D:
     def init_coppelia(self):
         self.joint_01 = self.sim.getObject("/Joint_01")
         self.dummy = self.sim.getObject("/Dummy")
+        self.sim.setObjectInt32Param(
+            self.joint_01,
+            self.sim.jointintparam_dynctrlmode,
+            self.sim.jointdynctrl_position,
+        )
 
     def read_dummy(self):
         return self.sim.getObjectPosition(self.dummy)
