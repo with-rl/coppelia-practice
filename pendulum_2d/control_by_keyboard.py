@@ -15,7 +15,7 @@ class Control:
     tau2: float = 0
 
 
-class Penduleum1D:
+class Penduleum2D:
     def __init__(self):
         self.client = RemoteAPIClient()
         self.sim = self.client.require("sim")
