@@ -57,6 +57,6 @@ class Penduleum2D:
 
 
 if __name__ == "__main__":
-    client = Penduleum1D()
+    client = Penduleum2D()
     client.init_coppelia()
     client.run_coppelia(100)
