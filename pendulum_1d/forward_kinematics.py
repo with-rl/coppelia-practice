@@ -12,10 +12,9 @@ from coppeliasim_zmqremoteapi_client import RemoteAPIClient
 
 @dataclass
 class Control:
-    O_0: tuple = (0, 1)  # 중심 점
-    l_1: float = 0.5
-    theta_1: float = -np.pi / 2  # 각도: theta_1
-    C_0: tuple = (0, 0)  # 좌표: 계산이 필요한 값
+    O0: tuple = (0, 1)  # 중심 점
+    l1: float = 0.5
+    theta1: float = -np.pi / 2  # 각도: theta1
 
 
 class Penduleum1D:
@@ -23,22 +22,20 @@ class Penduleum1D:
         self.client = RemoteAPIClient()
         self.sim = self.client.require("sim")
         self.control = Control()
-        self.control.C_0 = self.fk(self.control.theta_1, self.control.l_1)
 
-    def fk(self, theta_1, l_1):
+    def fk(self, theta1, l1):
         H_01 = np.array(
             [
-                [np.cos(theta_1), -np.sin(theta_1), self.control.O_0[0]],
-                [np.sin(theta_1), np.cos(theta_1), self.control.O_0[1]],
+                [np.cos(theta1), -np.sin(theta1), self.control.O0[0]],
+                [np.sin(theta1), np.cos(theta1), self.control.O0[1]],
                 [0, 0, 1],
             ]
         )
-        return np.matmul(H_01, np.array([l_1, 0, 1]).T)[:-1]
+        return np.matmul(H_01, np.array([l1, 0, 1]).T)[:-1]
 
     def on_press(self, key):
         if key == Key.space:
-            self.control.theta_1 = (np.random.random() * 2 - 1) * np.pi
-            self.control.C_0 = self.fk(self.control.theta_1, self.control.l_1)
+            self.control.theta1 = (np.random.random() * 2 - 1) * np.pi
 
     def init_coppelia(self):
         self.joint_01 = self.sim.getObject("/Joint_01")
@@ -53,7 +50,7 @@ class Penduleum1D:
         return self.sim.getObjectPosition(self.dummy)
 
     def control_joint(self):
-        self.sim.setJointTargetPosition(self.joint_01, self.control.theta_1)
+        self.sim.setJointTargetPosition(self.joint_01, self.control.theta1)
 
     def run_coppelia(self, sec):
         # key input
@@ -66,7 +63,8 @@ class Penduleum1D:
             self.control_joint()
             # dummy postion
             real = self.read_dummy()
-            print(f"real={real[1:]}, fk={self.control.C_0}")
+            C0 = self.fk(self.control.theta1, self.control.l1)
+            print(f"real={real[1:]}, fk={C0}")
             # step
             self.sim.step()
         self.sim.stopSimulation()
