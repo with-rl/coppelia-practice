@@ -13,7 +13,10 @@
 ![animation](./images/pendulum_2d_control_by_keyboard.gif)
 
 
-# youBot 1D
+# youBot
 ## Control by Keyboard: [control_by_keyboard.py](./youBot/control_by_keyboard.py)
 ![car control](./images/youBot_control_by_keyboard_car.gif)
 ![arm control](./images/youBot_control_by_keyboard_arm.gif)
+
+## Occupancy Grid Mapping: [occupancy_grid_mapping.py](./youBot/occupancy_grid_mapping.py)
+![occupancy grid mapping](./images/youBot_occupancy_grid_mapping.gif)
