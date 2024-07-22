@@ -177,7 +177,7 @@ class Grid:
         return 0
 
     def save(self):
-        with open("mapping.npy", "wb") as f:
+        with open("youBot/mapping.npy", "wb") as f:
             np.save(f, self.grid)
 
     def visualize(self, loc, scan):
