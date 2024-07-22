@@ -66,7 +66,6 @@ class YouBot:
         self.youBot_ref = self.sim.getObject("/youBot_ref")
 
     def control_car(self):
-        print(self.control.vel_X)
         self.sim.setJointTargetVelocity(
             self.wheels[0],
             -self.control.vel_X + self.control.vel_Z,
@@ -132,6 +131,7 @@ class Grid:
 
     def update(self, loc, scan):
         self.mapping(loc, scan)
+        self.save()
         self.visualize(loc, scan)
 
     def mapping(self, loc, scan):
@@ -176,6 +176,10 @@ class Grid:
                 return -0.5
         return 0
 
+    def save(self):
+        with open("mapping.npy", "wb") as f:
+            np.save(f, self.grid)
+
     def visualize(self, loc, scan):
         x, y, theta = loc
         # clear object
@@ -183,7 +187,6 @@ class Grid:
             if object:
                 object.remove()
         # grid
-        # grid = np.clip(self.grid, -10, 10) * -1 + 10
         grid = -self.grid + 5
         self.plt_objects[0] = plt.pcolor(self.R, self.P, grid, cmap="gray")
         # robot
