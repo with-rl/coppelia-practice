@@ -138,9 +138,18 @@ class Grid:
         x, y, theta = loc
         rx = x + 0.275 * np.cos(theta)
         ry = y + 0.275 * np.sin(theta)
-        for j in range(100):  # y축
+        # check position
+        diff = 25
+        i_cur = int(rx // 0.1 + 50)
+        i_min = max(0, i_cur - diff)
+        i_max = min(100, i_cur + diff)
+        j_cur = int(ry // 0.1 + 50)
+        j_min = max(0, j_cur - diff)
+        j_max = min(100, j_cur + diff)
+
+        for j in range(j_min, j_max):
             gy = j * 0.1 + 0.05 - 5
-            for i in range(100):  # x축
+            for i in range(i_min, i_max):
                 gx = i * 0.1 + 0.05 - 5
                 gd = ((gx - rx) ** 2 + (gy - ry) ** 2) ** 0.5
                 if gd < 2.35:  # lidar 거리 안에 있는 것만 계산
