@@ -142,10 +142,10 @@ class Grid:
             gy = j * 0.1 + 0.05 - 5
             for i in range(100):  # x축
                 gx = i * 0.1 + 0.05 - 5
-                dist = ((gx - rx) ** 2 + (gy - ry) ** 2) ** 0.5
-                if dist < 2.35:  # lidar 거리 안에 있는 것만 계산
+                gd = ((gx - rx) ** 2 + (gy - ry) ** 2) ** 0.5
+                if gd < 2.35:  # lidar 거리 안에 있는 것만 계산
                     self.grid[j, i] += self.inverseSensorModel(
-                        rx, ry, theta, gx, gy, dist, scan
+                        rx, ry, theta, gx, gy, gd, scan
                     )
                 else:
                     # self.grid[j, i] += 0
