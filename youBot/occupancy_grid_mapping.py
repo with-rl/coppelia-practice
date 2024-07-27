@@ -124,8 +124,9 @@ class Grid:
         # plot object
         self.plt_objects = [None] * 15  # grid, robot, scans (13)
         # scan theta
-        delta = np.pi / 12
-        self.sacn_theta = np.array([-np.pi / 2 + delta * i for i in range(13)])
+        self.delta = np.pi / 12
+        self.sacn_theta = np.array([-np.pi / 2 + self.delta * i for i in range(13)])
+        self.boundary = np.pi / 2 + self.delta / 2
         # min distance
         self.min_dist = (2 * (0.05**2)) ** 0.5
 
@@ -136,54 +137,60 @@ class Grid:
 
     def mapping(self, loc, scan):
         x, y, theta = loc
+        # scan position
         rx = x + 0.275 * np.cos(theta)
         ry = y + 0.275 * np.sin(theta)
-        # check position
-        diff = 25
-        i_cur = int(rx // 0.1 + 50)
-        i_min = max(0, i_cur - diff)
-        i_max = min(100, i_cur + diff)
-        j_cur = int(ry // 0.1 + 50)
-        j_min = max(0, j_cur - diff)
-        j_max = min(100, j_cur + diff)
-
-        for j in range(j_min, j_max):
-            gy = j * 0.1 + 0.05 - 5
-            for i in range(i_min, i_max):
-                gx = i * 0.1 + 0.05 - 5
-                gd = ((gx - rx) ** 2 + (gy - ry) ** 2) ** 0.5
-                if gd < 2.35:  # lidar 거리 안에 있는 것만 계산
-                    self.grid[j, i] += self.inverseSensorModel(
-                        rx, ry, theta, gx, gy, gd, scan
-                    )
-                else:
-                    # self.grid[j, i] += 0
-                    pass
-        np.clip(self.grid, -5, 5, out=self.grid)
-
-    def inverseSensorModel(self, rx, ry, rtheta, gx, gy, gd, scan):
-        # theta 계산
+        # range
+        dist = 2.25
+        i_min = max(0, int((rx - dist) // 0.1 + 50))
+        i_max = min(99, int((rx + dist) // 0.1 + 50))
+        j_min = max(0, int((ry - dist) // 0.1 + 50))
+        j_max = min(99, int((ry + dist) // 0.1 + 50))
+        # sub grid
+        sub_grid = self.grid[j_min : j_max + 1, i_min : i_max + 1]
+        # x distance
+        gx = np.arange(i_min, i_max + 1) * 0.1 + 0.05 - 5
+        gx = np.repeat(gx.reshape(1, -1), sub_grid.shape[0], axis=0)
         dx = gx - rx
+        # y distance
+        gy = np.arange(j_min, j_max + 1) * 0.1 + 0.05 - 5
+        gy = np.repeat(gy.reshape(1, -1).T, sub_grid.shape[1], axis=1)
         dy = gy - ry
-        dd = (dx**2 + dy**2) ** 0.5
-        gtheta = np.arccos(dx / dd) * (1 if dy > 0 else -1)
-        dtheta = gtheta - rtheta
-        while dtheta > np.pi:
-            dtheta -= np.pi * 2
-        while dtheta < -np.pi:
-            dtheta += np.pi * 2
-        # boundary 내부에 있는 것만 계산
-        delta = np.pi / 12
-        boundary = np.pi / 2 + delta / 2
+        # distance
+        gd = (dx**2 + dy**2) ** 0.5
+        # theta diff
+        gtheta = np.arccos(dx / gd) * ((dy > 0) * 2 - 1)
+        dtheta = gtheta - theta
+        while np.pi < np.max(dtheta):
+            dtheta -= (np.pi < dtheta) * 2 * np.pi
+        while np.min(dtheta) < -np.pi:
+            dtheta += (dtheta < -np.pi) * 2 * np.pi
+        # inverse sensor model
+        for i in range(13):
+            res, dist, _, _, _ = scan[i]
+            if res == 0:
+                area = (
+                    (gd <= 2.25)
+                    * (-self.boundary + self.delta * i <= dtheta)
+                    * (dtheta <= -self.boundary + self.delta * (i + 1))
+                )
+                sub_grid[area] -= 0.5
+            else:
+                dist = min(2.25, dist)
+                detect_area = (
+                    (np.abs(gd - dist) < self.min_dist)
+                    * (-self.boundary + self.delta * i <= dtheta)
+                    * (dtheta <= -self.boundary + self.delta * (i + 1))
+                )
+                sub_grid[detect_area] += 0.5
 
-        if -boundary < dtheta < boundary:
-            idx = np.argmin(np.abs(self.sacn_theta - dtheta))
-            res, dist, _, _, _ = scan[idx]  # res, dist, point, obj, n
-            if res == 1 and abs(dist - gd) < self.min_dist:
-                return 0.5
-            elif res == 0 or dist > gd:  # not occupyted
-                return -0.5
-        return 0
+                free_area = (
+                    (gd <= dist - self.min_dist)
+                    * (-self.boundary + self.delta * i <= dtheta)
+                    * (dtheta <= -self.boundary + self.delta * (i + 1))
+                )
+                sub_grid[free_area] -= 0.5
+        np.clip(self.grid, -5, 5, out=self.grid)
 
     def save(self):
         with open("youBot/mapping.npy", "wb") as f:
