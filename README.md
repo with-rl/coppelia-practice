@@ -20,3 +20,6 @@
 
 ## Occupancy Grid Mapping: [occupancy_grid_mapping.py](./youBot/occupancy_grid_mapping.py)
 ![occupancy grid mapping](./images/youBot_occupancy_grid_mapping.gif)
+
+## Monte Carlo Localization: [monte_carlo_localization.py](./youBot/monte_carlo_localization.py)
+![monte carlo localization](./images/youBot_monte_carlo_localization.gif)
