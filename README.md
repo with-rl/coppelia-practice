@@ -23,3 +23,6 @@
 
 ## Monte Carlo Localization: [monte_carlo_localization.py](./youBot/monte_carlo_localization.py)
 ![monte carlo localization](./images/youBot_monte_carlo_localization.gif)
+
+## Forward Kinematics: [forward_kinematics.py](./youBot/forward_kinematics.py)
+![forward kinematics](./images/youBot_forward_kinematics.gif)
