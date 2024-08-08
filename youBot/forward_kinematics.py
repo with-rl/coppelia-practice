@@ -81,8 +81,8 @@ class FK:
         self.visualize(OGR, OGR_hat, save)
 
     def fk(self, joints):
-        OCR = joints[0][0]
-        RCR = joints[0][1]  # OA0 = joints[1][0]
+        OCA = joints[0][0]
+        RCA = joints[0][1]  # OA0 = joints[1][0]
         RA0 = joints[1][1]  # OA1 = joints[2][0]
         RA1 = joints[2][1]  # OA2 = joints[3][0]
         RA2 = joints[3][1]  # OA3 = joints[4][0]
@@ -92,9 +92,9 @@ class FK:
 
         H_O0_CR = np.array(
             [
-                [np.cos(RCR), -np.sin(RCR), 0, OCR[0]],
-                [np.sin(RCR), np.cos(RCR), 0, OCR[1]],
-                [0, 0, 1, OCR[2]],
+                [np.cos(RCA), -np.sin(RCA), 0, OCA[0]],
+                [np.sin(RCA), np.cos(RCA), 0, OCA[1]],
+                [0, 0, 1, OCA[2]],
                 [0, 0, 0, 1],
             ]
         )
