@@ -56,7 +56,7 @@ class FKBot(YouBot):
         self.control_car()
         # arm control
         self.control_arm()
-        # read youBot_ref
+        # read joints
         joints = self.read_joints()
         # update FK
         self.fk.update(joints, count == (len(self.angles) - 1))  # save at last
