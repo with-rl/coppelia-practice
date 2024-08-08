@@ -20,6 +20,11 @@ class FKBot(YouBot):
             )
         )
 
+    def init_coppelia(self):
+        super().init_coppelia()
+        # reference
+        self.gripper_ref = self.sim.getObject("/Gripper_ref")
+
     def read_joints(self):
         joints = []
         # car ref
@@ -33,9 +38,9 @@ class FKBot(YouBot):
             R = self.sim.getJointPosition(arm)
             joints.append((np.array(O), R))
 
-        # gripper joint
-        O = self.sim.getObjectPosition(self.gripper)
-        R = self.sim.getJointPosition(self.gripper)
+        # gripper ref
+        O = self.sim.getObjectPosition(self.gripper_ref)
+        R = 0
         joints.append((np.array(O), R))
 
         return joints
@@ -63,12 +68,15 @@ class FKBot(YouBot):
 
 
 class FK:
-    D_CR_A0 = np.array([0.44122, 0.00000, 0.14467, 1])
+    A4 = np.array([-0.00052, 1.19959, 0.63208, 1])
+    GR = np.array([-0.00052, 1.19959, 0.73208, 1])
+
+    D_CA_A0 = np.array([0.44122, 0.00000, 0.14467, 1])
     D_A0_A1 = np.array([0.03301, -0.03945, 0.10123, 1])
     D_A1_A2 = np.array([-0.0001, 0.009, 0.155, 1])
     D_A2_A3 = np.array([-0.00005, 0.05000, 0.13485, 1])
     D_A3_A4 = np.array([0.00055, -0.01903, 0.09633, 1])
-    D_A4_GR = np.array([-0.00011, -0.02452, 0.09734, 1])
+    D_A4_GR = np.array([0.00000, 0.00000, 0.10000, 1])
 
     def __init__(self):
         self.data = np.zeros((10240, 3))  # default values
@@ -81,6 +89,7 @@ class FK:
         self.visualize(OGR, OGR_hat, save)
 
     def fk(self, joints):
+        print(FK.GR - FK.A4)
         OCA = joints[0][0]
         RCA = joints[0][1]  # OA0 = joints[1][0]
         RA0 = joints[1][1]  # OA1 = joints[2][0]
@@ -100,9 +109,9 @@ class FK:
         )
         H_CR_A0 = np.array(
             [
-                [np.cos(RA0), -np.sin(RA0), 0, FK.D_CR_A0[0]],
-                [np.sin(RA0), np.cos(RA0), 0, FK.D_CR_A0[1]],
-                [0, 0, 1, FK.D_CR_A0[2]],
+                [np.cos(RA0), -np.sin(RA0), 0, FK.D_CA_A0[0]],
+                [np.sin(RA0), np.cos(RA0), 0, FK.D_CA_A0[1]],
+                [0, 0, 1, FK.D_CA_A0[2]],
                 [0, 0, 0, 1],
             ]
         )
