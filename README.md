@@ -26,3 +26,6 @@
 
 ## Forward Kinematics: [forward_kinematics.py](./youBot/forward_kinematics.py)
 ![forward kinematics](./images/youBot_forward_kinematics.gif)
+
+## Inverse Kinematics: [inverse_kinematics.py](./youBot/inverse_kinematics.py)
+![inverse kinematics](./images/youBot_inverse_kinematics.gif)
